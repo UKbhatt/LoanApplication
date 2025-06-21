@@ -105,16 +105,14 @@ class _ConfirmotpState extends State<Confirmotp> {
                             ),
                           ),
                           builder: (context) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              Future.delayed(const Duration(seconds: 2), () {
-                                Navigator.pop(context);
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  '/permission',
-                                );
-                              });
+                            WidgetsBinding.instance.addPostFrameCallback((_)  {
+                              Navigator.pop(context);
+                               Future.delayed(Duration(seconds: 2));
+                               Navigator.pushReplacementNamed(
+                                context,
+                                '/permission',
+                              );
                             });
-
                             return FractionallySizedBox(
                               heightFactor: 0.27,
                               child: Center(

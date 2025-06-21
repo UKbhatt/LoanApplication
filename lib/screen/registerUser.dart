@@ -1,29 +1,20 @@
+import 'package:creditsea/statemanagement/progressGetx.dart';
+import 'package:creditsea/statemanagement/registerGetx.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class RegisterController extends GetxController {
-  var firstName = ''.obs;
-  var lastName = ''.obs;
-  var email = ''.obs;
-  var dob = ''.obs;
-  var gender = 'Male'.obs;
-  var pincode = ''.obs;
-  var pan = ''.obs;
-}
-
 class RegisterScreen extends StatelessWidget {
   RegisterScreen({super.key});
 
-  final _formKey = GlobalKey<FormState>();
   final controller = Get.put(RegisterController());
-
-  final TextEditingController firstNameCtrl = TextEditingController();
-  final TextEditingController lastNameCtrl = TextEditingController();
-  final TextEditingController emailCtrl = TextEditingController();
-  final TextEditingController dobCtrl = TextEditingController();
-  final TextEditingController pincodeCtrl = TextEditingController();
-  final TextEditingController panCtrl = TextEditingController();
+  final progressController = Get.put(ProgressController());
+  final firstNameCtrl = TextEditingController();
+  final lastNameCtrl = TextEditingController();
+  final emailCtrl = TextEditingController();
+  final dobCtrl = TextEditingController();
+  final pincodeCtrl = TextEditingController();
+  final panCtrl = TextEditingController();
 
   void _showConfirmationModal(BuildContext context) {
     showModalBottomSheet(
@@ -58,15 +49,14 @@ class RegisterScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    "Edit details",
-                    style: GoogleFonts.poppins(color: Colors.black),
-                  ),
+                  onPressed: () {
+                    progressController.previousStep();
+                    Navigator.pop(context);
+                  },
+                  child: Text("Edit details", style: GoogleFonts.poppins()),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Handle final submission
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
@@ -84,6 +74,73 @@ class RegisterScreen extends StatelessWidget {
       ),
     );
   }
+  Widget pincodeDashedInput({
+    required TextEditingController controller,
+    required Function(String) onChanged,
+  }) {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Pincode", style: GoogleFonts.poppins()),
+            const SizedBox(height: 8),
+            Stack(
+              children: [
+                // Actual invisible TextField
+                TextField(
+                  controller: controller,
+                  maxLength: 6,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 0,
+                    color: Colors.transparent,
+                  ),
+                  cursorColor: Colors.transparent,
+                  decoration: const InputDecoration(
+                    counterText: '',
+                    border: InputBorder.none,
+                  ),
+                  onChanged: (val) {
+                    onChanged(val);
+                    setState(() {});
+                  },
+                ),
+
+                // UI Dashes + Characters
+                IgnorePointer(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(6, (index) {
+                      String ch = "";
+                      if (controller.text.length > index) {
+                        ch = controller.text[index];
+                      }
+                      return Column(
+                        children: [
+                          Text(
+                            ch,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(width: 20, height: 1, color: Colors.grey),
+                        ],
+                      );
+                    }),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+        );
+      },
+    );
+  }
+
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
@@ -102,6 +159,105 @@ class RegisterScreen extends StatelessWidget {
       ),
     );
   }
+  Widget panCardDashedInput({
+    required TextEditingController controller,
+    required Function(String) onChanged,
+  }) {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("PAN Card Number", style: GoogleFonts.poppins()),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+              child: Stack(
+                children: [
+                  TextField(
+                    controller: controller,
+                    maxLength: 10,
+                    keyboardType: TextInputType.text,
+                    style: const TextStyle(
+                      fontSize: 0,
+                      color: Colors.transparent,
+                    ),
+             
+                    decoration: const InputDecoration(
+                      counterText: '',
+                      border: InputBorder.none,
+                    ),
+                    onChanged: (val) {
+                      onChanged(val);
+                      setState(() {});
+                    },
+                  ),
+                  IgnorePointer(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: List.generate(10, (index) {
+                        String ch = "";
+                        if (controller.text.length > index) {
+                          ch = controller.text[index];
+                        }
+                        return Column(
+                          children: [
+                            Text(
+                              ch,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(width: 20, height: 1, color: Colors.grey),
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
+        );
+      },
+    );
+  }
+
+
+Widget _customTextField({
+    required String label,
+    required TextEditingController controller,
+    required Function(String) onChanged,
+    String? hintText,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(),
+        ),
+        const SizedBox(height: 5),
+        TextField(
+          controller: controller,
+          onChanged: onChanged,
+          decoration: InputDecoration(
+            hintText: hintText ?? '',
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -109,131 +265,112 @@ class RegisterScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              children: [
-                Text(
-                  "Quick details to unlock your credit journey",
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+          child: ListView(
+            children: [
+              Text(
+                "Quick details to unlock your credit journey",
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _customTextField(
+                label: "First Name",
+                controller: firstNameCtrl,
+                onChanged: (val) => controller.firstName.value = val,
+              ),
+              _customTextField(
+                label: "Last Name",
+                controller: lastNameCtrl,
+                onChanged: (val) => controller.lastName.value = val,
+              ),
+              _customTextField(
+                label: "Personal Email ID",
+                controller: emailCtrl,
+                onChanged: (val) => controller.email.value = val,
+              ),
+              _customTextField(
+                label: "Date of Birth",
+                hintText: "(dd/mm/yyyy)",
+                controller: dobCtrl,
+                onChanged: (val) => controller.dob.value = val,
+              ),
+              Text("Gender", style: GoogleFonts.poppins()),
+              Obx(
+                () => Row(
+                  children: [
+                    Radio<String>(
+                      value: "Male",
+                      groupValue: controller.gender.value,
+                      onChanged: (val) => controller.gender.value = val!,
+                    ),
+                    const Text("Male"),
+                    Radio<String>(
+                      value: "Female",
+                      groupValue: controller.gender.value,
+                      onChanged: (val) => controller.gender.value = val!,
+                    ),
+                    const Text("Female"),
+                    Radio<String>(
+                      value: "Others",
+                      groupValue: controller.gender.value,
+                      onChanged: (val) => controller.gender.value = val!,
+                    ),
+                    const Text("Others"),
+                  ],
+                ),
+              ),
+              pincodeDashedInput(
+                controller: pincodeCtrl,
+                onChanged: (val) => controller.pincode.value = val,
+              ),
+             panCardDashedInput(
+                controller: panCtrl,
+                onChanged: (val) => controller.pan.value = val,
+              ),
+
+              const SizedBox(height: 30),
+              SizedBox(
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade600,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                _buildTextField(
-                  "First Name",
-                  firstNameCtrl,
-                  (val) => controller.firstName.value = val,
-                ),
-                _buildTextField(
-                  "Last Name",
-                  lastNameCtrl,
-                  (val) => controller.lastName.value = val,
-                ),
-                _buildTextField(
-                  "Personal Email ID",
-                  emailCtrl,
-                  (val) => controller.email.value = val,
-                ),
-                _buildTextField(
-                  "Date of Birth",
-                  dobCtrl,
-                  (val) => controller.dob.value = val,
-                  hintText: "dd/mm/yyyy",
-                ),
-                const SizedBox(height: 10),
-                Text("Gender", style: GoogleFonts.poppins()),
-                Obx(
-                  () => Row(
+                  onPressed: () {
+                    // You can add basic validation here
+                    if (firstNameCtrl.text.isEmpty || emailCtrl.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please fill all required fields'),
+                        ),
+                      );
+                      return;
+                    }
+                    progressController.nextStep();
+                    _showConfirmationModal(context);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Radio<String>(
-                        value: "Male",
-                        groupValue: controller.gender.value,
-                        onChanged: (val) => controller.gender.value = val!,
+                      Text(
+                        "Next",
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
                       ),
-                      const Text("Male"),
-                      Radio<String>(
-                        value: "Female",
-                        groupValue: controller.gender.value,
-                        onChanged: (val) => controller.gender.value = val!,
-                      ),
-                      const Text("Female"),
-                      Radio<String>(
-                        value: "Others",
-                        groupValue: controller.gender.value,
-                        onChanged: (val) => controller.gender.value = val!,
-                      ),
-                      const Text("Others"),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.arrow_forward, color: Colors.white),
                     ],
                   ),
                 ),
-                _buildTextField(
-                  "Pincode",
-                  pincodeCtrl,
-                  (val) => controller.pincode.value = val,
-                ),
-                _buildTextField(
-                  "PAN Card Number",
-                  panCtrl,
-                  (val) => controller.pan.value = val,
-                ),
-                const SizedBox(height: 30),
-                SizedBox(
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade600,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _showConfirmationModal(context);
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Next",
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 15,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.arrow_forward, color: Colors.white),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-    String label,
-    TextEditingController controller,
-    Function(String) onChanged, {
-    String? hintText,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextFormField(
-        controller: controller,
-        onChanged: onChanged,
-        validator: (value) =>
-            value == null || value.isEmpty ? "Required" : null,
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hintText,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
     );
