@@ -17,8 +17,7 @@ class _OtpAuthState extends State<OtpAuth> {
 
   @override
   Widget build(BuildContext context) {
-    // var height = MediaQuery.of(context).size.height;
-    // var width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: CreaditSea(),
       body: SafeArea(

@@ -1,3 +1,5 @@
+import 'package:creditsea/components/appBar.dart';
+import 'package:creditsea/components/stepProgressBar.dart';
 import 'package:creditsea/statemanagement/progressGetx.dart';
 import 'package:creditsea/statemanagement/registerGetx.dart';
 import 'package:flutter/material.dart';
@@ -49,14 +51,18 @@ class RegisterScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 OutlinedButton(
-                  onPressed: () {
-                    progressController.previousStep();
+                  onPressed: () { 
                     Navigator.pop(context);
                   },
                   child: Text("Edit details", style: GoogleFonts.poppins()),
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    final progress = Get.find<ProgressController>();
+
+                    progress.goToNextStep(); 
+                    Get.toNamed('/nextScreen');
+
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
@@ -74,6 +80,7 @@ class RegisterScreen extends StatelessWidget {
       ),
     );
   }
+
   Widget pincodeDashedInput({
     required TextEditingController controller,
     required Function(String) onChanged,
@@ -87,7 +94,6 @@ class RegisterScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Stack(
               children: [
-                // Actual invisible TextField
                 TextField(
                   controller: controller,
                   maxLength: 6,
@@ -107,7 +113,6 @@ class RegisterScreen extends StatelessWidget {
                   },
                 ),
 
-                // UI Dashes + Characters
                 IgnorePointer(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -141,7 +146,6 @@ class RegisterScreen extends StatelessWidget {
     );
   }
 
-
   Widget _buildDetailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -159,6 +163,7 @@ class RegisterScreen extends StatelessWidget {
       ),
     );
   }
+
   Widget panCardDashedInput({
     required TextEditingController controller,
     required Function(String) onChanged,
@@ -182,7 +187,7 @@ class RegisterScreen extends StatelessWidget {
                       fontSize: 0,
                       color: Colors.transparent,
                     ),
-             
+
                     decoration: const InputDecoration(
                       counterText: '',
                       border: InputBorder.none,
@@ -226,8 +231,7 @@ class RegisterScreen extends StatelessWidget {
     );
   }
 
-
-Widget _customTextField({
+  Widget _customTextField({
     required String label,
     required TextEditingController controller,
     required Function(String) onChanged,
@@ -236,10 +240,7 @@ Widget _customTextField({
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(),
-        ),
+        Text(label, style: GoogleFonts.poppins()),
         const SizedBox(height: 5),
         TextField(
           controller: controller,
@@ -258,15 +259,21 @@ Widget _customTextField({
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CreaditSea(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: ListView(
             children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Center(child: StepProgressBar()),
+              ),
+
+              SizedBox(height: 10),
               Text(
                 "Quick details to unlock your credit journey",
                 style: GoogleFonts.poppins(
@@ -325,7 +332,7 @@ Widget _customTextField({
                 controller: pincodeCtrl,
                 onChanged: (val) => controller.pincode.value = val,
               ),
-             panCardDashedInput(
+              panCardDashedInput(
                 controller: panCtrl,
                 onChanged: (val) => controller.pan.value = val,
               ),
@@ -341,7 +348,6 @@ Widget _customTextField({
                     ),
                   ),
                   onPressed: () {
-                    // You can add basic validation here
                     if (firstNameCtrl.text.isEmpty || emailCtrl.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -350,7 +356,8 @@ Widget _customTextField({
                       );
                       return;
                     }
-                    progressController.nextStep();
+                    final progress = Get.find<ProgressController>();
+                    progress.preAdvanceLine();
                     _showConfirmationModal(context);
                   },
                   child: Row(
