@@ -1,14 +1,18 @@
 import 'package:creditsea/screen/ApprovalOffer.dart';
+import 'package:creditsea/screen/bankStatementUpload.dart';
 import 'package:creditsea/screen/confirmOtp.dart';
 import 'package:creditsea/screen/ifSalaried.dart';
+import 'package:creditsea/screen/otpVerification.dart';
 import 'package:creditsea/screen/otp_auth.dart';
 import 'package:creditsea/screen/permission_screen.dart';
 import 'package:creditsea/screen/registerUser.dart';
+import 'package:creditsea/screen/success.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -26,6 +30,15 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/register', page: () => RegisterScreen()),
         GetPage(name: '/approval', page: () => Approvaloffer()),
         GetPage(name: '/salaried', page: () => IfsalariedScreeen()),
+        GetPage(name: '/otpVerification', page: () => OtpverificationScreeen()),
+        GetPage(
+          name: '/bankStatementUpload',
+          page: () => BankstatementuploadScreen(),
+        ),
+        GetPage(
+          name: '/success',
+          page: () => SuccessScreen(),
+        ),
       ],
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',

@@ -60,8 +60,6 @@ class RegisterScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context); 
-                    final progress = Get.find<ProgressController>();
-                    progress.goToNextStep();
                     Future.delayed(Duration(milliseconds: 100), () {
                       Get.toNamed('/approval'); 
                     });
