@@ -11,6 +11,7 @@ class RegisterScreen extends StatelessWidget {
 
   final controller = Get.put(RegisterController());
   final progressController = Get.put(ProgressController());
+
   final firstNameCtrl = TextEditingController();
   final lastNameCtrl = TextEditingController();
   final emailCtrl = TextEditingController();
@@ -51,19 +52,19 @@ class RegisterScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 OutlinedButton(
-                  onPressed: () { 
+                  onPressed: () {
                     Navigator.pop(context);
                   },
                   child: Text("Edit details", style: GoogleFonts.poppins()),
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    Navigator.pop(context); 
                     final progress = Get.find<ProgressController>();
-
-                    progress.goToNextStep(); 
-                    Get.toNamed('/nextScreen');
-
-                    Navigator.pop(context);
+                    progress.goToNextStep();
+                    Future.delayed(Duration(milliseconds: 100), () {
+                      Get.toNamed('/approval'); 
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue.shade600,
@@ -112,7 +113,6 @@ class RegisterScreen extends StatelessWidget {
                     setState(() {});
                   },
                 ),
-
                 IgnorePointer(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -348,14 +348,6 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    if (firstNameCtrl.text.isEmpty || emailCtrl.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please fill all required fields'),
-                        ),
-                      );
-                      return;
-                    }
                     final progress = Get.find<ProgressController>();
                     progress.preAdvanceLine();
                     _showConfirmationModal(context);

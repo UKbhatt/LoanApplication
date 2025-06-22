@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:creditsea/components/appBar.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Confirmotp extends StatefulWidget {
@@ -104,13 +106,14 @@ class _ConfirmotpState extends State<Confirmotp> {
                             ),
                           ),
                           builder: (context) {
-                            WidgetsBinding.instance.addPostFrameCallback((_)  {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
                               Navigator.pop(context);
-                               Future.delayed(Duration(seconds: 2));
-                               Navigator.pushReplacementNamed(
-                                context,
-                                '/permission',
-                              );
+                              Future.delayed(Duration(seconds: 2));
+                              Get.toNamed('/permission');
+                              // Navigator.pushReplacementNamed(
+                              //   context,
+                              //   '/permission',
+                              // );
                             });
                             return FractionallySizedBox(
                               heightFactor: 0.27,

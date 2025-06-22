@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:creditsea/components/appBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class OtpAuth extends StatefulWidget {
@@ -17,7 +19,6 @@ class _OtpAuthState extends State<OtpAuth> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: CreaditSea(),
       body: SafeArea(
@@ -122,7 +123,7 @@ class _OtpAuthState extends State<OtpAuth> {
                     );
                     Timer(const Duration(seconds: 2), () {
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, '/otpConfirm');
+                      Get.toNamed('/otpConfirm');
                     });
                   },
                   child: const Row(

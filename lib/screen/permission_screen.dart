@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:creditsea/components/appBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PermissionScreen extends StatefulWidget {
@@ -138,7 +140,8 @@ class _PermissionScreenState extends State<PermissionScreen> {
                     );
                     Timer(const Duration(seconds: 2), () {
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, '/register');
+                      Get.toNamed('/register');
+                      // Navigator.pushNamed(context, '/register');
                     });
                   },
                   child: const Row(
