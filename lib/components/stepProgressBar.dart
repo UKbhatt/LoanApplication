@@ -16,7 +16,6 @@ class StepProgressBar extends StatelessWidget {
               if (index.isEven) {
                 final stepIndex = index ~/ 2;
                 final isActive = controller.currentStep.value >= stepIndex;
-
                 return Expanded(
                   child: Column(
                     children: [

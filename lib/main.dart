@@ -1,7 +1,11 @@
 import 'package:creditsea/screen/ApprovalOffer.dart';
+import 'package:creditsea/screen/KycLocked.dart';
 import 'package:creditsea/screen/bankStatementUpload.dart';
 import 'package:creditsea/screen/confirmOtp.dart';
+import 'package:creditsea/screen/faceVerification.dart';
 import 'package:creditsea/screen/ifSalaried.dart';
+import 'package:creditsea/screen/offerApproved.dart';
+import 'package:creditsea/screen/offerLoading.dart';
 import 'package:creditsea/screen/otpVerification.dart';
 import 'package:creditsea/screen/otp_auth.dart';
 import 'package:creditsea/screen/permission_screen.dart';
@@ -35,10 +39,11 @@ class MyApp extends StatelessWidget {
           name: '/bankStatementUpload',
           page: () => BankstatementuploadScreen(),
         ),
-        GetPage(
-          name: '/success',
-          page: () => SuccessScreen(),
-        ),
+        GetPage(name: '/success', page: () => SuccessScreen()),
+        GetPage(name: '/offerLoading', page: () => OfferloadingScreen()),
+        GetPage(name: '/approvedOffer', page: () => ApprovedOfferScreen()),
+        GetPage(name: '/kycScreen', page: () => KYClockedScreen()),
+        GetPage(name: '/faceVerification', page: () => FaceverificationScreen()),
       ],
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
