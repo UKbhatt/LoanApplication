@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:camera/camera.dart';
 import 'package:creditsea/components/camera_capture_widget.dart';
 import 'package:creditsea/components/simpleAppbar.dart';
 import 'package:flutter/material.dart';
@@ -14,29 +13,7 @@ class FaceVerificationScreen extends StatefulWidget {
 
 class _FaceVerificationScreenState extends State<FaceVerificationScreen> {
   bool showTips = true;
-  CameraController? _cameraController;
-  late List<CameraDescription> _cameras;
   File? capturedImage;
-
-  @override
-  void initState() {
-    super.initState();
-    initCamera();
-  }
-
-  Future<void> initCamera() async {
-    _cameras = await availableCameras();
-    _cameraController = CameraController(_cameras[1], ResolutionPreset.medium);
-    await _cameraController!.initialize();
-    if (!mounted) return;
-    setState(() {});
-  }
-
-  @override
-  void dispose() {
-    _cameraController?.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,11 +119,163 @@ class _FaceVerificationScreenState extends State<FaceVerificationScreen> {
     );
   }
 
-  Widget buildCameraScreen() {
-    return CameraCaptureWidget(
-      onImageCaptured: (imageFile) {
-        print("Captured Image Path: ${imageFile.path}");
+  Widget buildCapturedImagePreview() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            "Here is your captured selfie",
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 20),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.file(
+              capturedImage!,
+              height: 350,
+              width: MediaQuery.of(context).size.width * 0.85,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(height: 30),
+          ElevatedButton.icon(
+            onPressed: () {
+              setState(() {
+                capturedImage = null;
+              });
+            },
+            icon: const Icon(Icons.camera_alt),
+            label: const Text("Retake"),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showVerifySelfieModal(File imageFile) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Please verify your selfie",
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Make sure your face is clearly visible and well-lit before proceeding.",
+                style: GoogleFonts.poppins(fontSize: 13),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          capturedImage = null;
+                        });
+                      },
+                      child: const Text("Retake"),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _showKycModal();
+                      },
+                      child: const Text("Confirm"),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
       },
     );
+  }
+
+  void _showKycModal() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Please submit your KYC",
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "🔒 Your selfie is used only for one-time verification and never stored.",
+                style: GoogleFonts.poppins(fontSize: 12 , fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('KYC submitted successfully!'),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text("Submit KYC", style: GoogleFonts.poppins()),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildCameraScreen() {
+    return capturedImage == null
+        ? CameraCaptureWidget(
+            onImageCaptured: (xfile) {
+              final file = File(xfile.path);
+              setState(() {
+                capturedImage = file;
+              });
+            },
+          )
+        : buildCapturedImagePreview();
   }
 }

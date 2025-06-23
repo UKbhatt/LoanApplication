@@ -48,7 +48,7 @@ class _BankstatementuploadScreenState extends State<BankstatementuploadScreen> {
           child: ElevatedButton(
             onPressed: pickedFile != null && uploadProgress == 1.0
                 ? () {
-                  Get.toNamed("/success"); 
+                  Get.offNamed("/success"); 
                 }
                 : null,
             style: ElevatedButton.styleFrom(

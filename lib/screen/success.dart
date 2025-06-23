@@ -20,7 +20,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
       appBar: CreaditSeaX(
         onClose: () {
           progressController.goToNextStep();
-          Get.toNamed("/offerLoading");
+          Get.offNamed("/offerLoading");
         },
       ),
       body: Center(

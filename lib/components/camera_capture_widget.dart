@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CameraCaptureWidget extends StatefulWidget {
@@ -14,6 +18,8 @@ class CameraCaptureWidget extends StatefulWidget {
 class _CameraCaptureWidgetState extends State<CameraCaptureWidget> {
   CameraController? _cameraController;
   bool _isCameraInitialized = false;
+  bool _isCapturing = false;
+  File? _capturedImageFile;
 
   @override
   void initState() {
@@ -24,11 +30,14 @@ class _CameraCaptureWidgetState extends State<CameraCaptureWidget> {
   Future<void> _initializeCamera() async {
     try {
       final cameras = await availableCameras();
+      final frontCamera = cameras.firstWhere(
+        (cam) => cam.lensDirection == CameraLensDirection.front,
+      );
+
       _cameraController = CameraController(
-        cameras.firstWhere(
-          (cam) => cam.lensDirection == CameraLensDirection.front,
-        ),
-        ResolutionPreset.medium,
+        frontCamera,
+        ResolutionPreset.high,
+        enableAudio: false,
       );
 
       await _cameraController!.initialize();
@@ -37,25 +46,149 @@ class _CameraCaptureWidgetState extends State<CameraCaptureWidget> {
         _isCameraInitialized = true;
       });
     } catch (e) {
-      print("Camera init error: $e");
+      print("Camera initialization error: $e");
     }
+  }
+
+  Future<void> _captureImage() async {
+    if (_cameraController != null &&
+        _cameraController!.value.isInitialized &&
+        !_isCapturing) {
+      setState(() => _isCapturing = true);
+      try {
+        final xfile = await _cameraController!.takePicture();
+        final file = File(xfile.path);
+
+        await _cameraController?.pausePreview();
+
+        setState(() {
+          _capturedImageFile = file;
+          _isCapturing = false;
+        });
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showVerifySelfieModal(xfile);
+        });
+      } catch (e) {
+        print("Error capturing image: $e");
+        setState(() => _isCapturing = false);
+      }
+    }
+  }
+
+  void _showVerifySelfieModal(XFile image) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Please verify your selfie",
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Make sure your face is clearly visible and well-lit before proceeding.",
+                style: GoogleFonts.poppins(fontSize: 13),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        setState(() {
+                          _capturedImageFile = null;
+                        });
+                        await _cameraController?.resumePreview();
+                      },
+                      child: const Text("Retake"),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _showKycModal(image);
+                      },
+                      child: Text(
+                        "Confirm",
+                        style: GoogleFonts.poppins(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showKycModal(XFile image) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Please submit your KYC",
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "🔒 Your selfie is used only for one-time verification and never stored.",
+                style: GoogleFonts.poppins(fontSize: 13),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Get.offNamed("/success2");
+                  widget.onImageCaptured(XFile(_capturedImageFile!.path));
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                ),
+                child: const Text("Submit KYC"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   void dispose() {
     _cameraController?.dispose();
     super.dispose();
-  }
-
-  Future<void> _captureImage() async {
-    if (_cameraController != null && _cameraController!.value.isInitialized) {
-      try {
-        final image = await _cameraController!.takePicture();
-        widget.onImageCaptured(image);
-      } catch (e) {
-        print("Capture failed: $e");
-      }
-    }
   }
 
   @override
@@ -85,7 +218,17 @@ class _CameraCaptureWidgetState extends State<CameraCaptureWidget> {
           ),
           const SizedBox(height: 30),
           Center(
-            child: _isCameraInitialized
+            child: _capturedImageFile != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.file(
+                      _capturedImageFile!,
+                      height: 350,
+                      width: width * 0.85,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : _isCameraInitialized
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: SizedBox(
@@ -104,7 +247,6 @@ class _CameraCaptureWidgetState extends State<CameraCaptureWidget> {
                     child: const Center(child: CircularProgressIndicator()),
                   ),
           ),
-
           const SizedBox(height: 30),
           Center(
             child: GestureDetector(
@@ -116,6 +258,11 @@ class _CameraCaptureWidgetState extends State<CameraCaptureWidget> {
                   shape: BoxShape.circle,
                   color: Colors.red,
                 ),
+                child: _isCapturing
+                    ? const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      )
+                    : null,
               ),
             ),
           ),

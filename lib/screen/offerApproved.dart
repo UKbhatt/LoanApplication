@@ -66,7 +66,7 @@ class ApprovedOfferScreen extends StatelessWidget {
               height: 48,
               child: ElevatedButton(
                 onPressed: () {
-                  Get.toNamed("/kycScreen");
+                  Get.offNamed("/kycScreen");
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
