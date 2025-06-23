@@ -1,5 +1,6 @@
 import 'package:creditsea/components/appbar_cross.dart';
 import 'package:creditsea/components/stepProgressBar.dart';
+import 'package:creditsea/statemanagement/progressGetx.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,6 +13,12 @@ class KYClockedScreen extends StatefulWidget {
 }
 
 class _KyclockedScreenState extends State<KYClockedScreen> {
+
+
+   late final ProgressController progressController =
+      Get.find<ProgressController>();
+
+
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
@@ -19,6 +26,7 @@ class _KyclockedScreenState extends State<KYClockedScreen> {
     return Scaffold(
       appBar: CreaditSeaX(
         onClose: () {
+          progressController.preAdvanceLine();
           Get.toNamed("/faceVerification");
         },
       ),
@@ -56,12 +64,13 @@ class _KyclockedScreenState extends State<KYClockedScreen> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  Text("Let's get your KYC done",  
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,  
-                    fontWeight: FontWeight.w500
+                  Text(
+                    "Let's get your KYC done",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                  )
                 ],
               ),
             ),

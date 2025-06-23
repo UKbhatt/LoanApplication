@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/offerLoading', page: () => OfferloadingScreen()),
         GetPage(name: '/approvedOffer', page: () => ApprovedOfferScreen()),
         GetPage(name: '/kycScreen', page: () => KYClockedScreen()),
-        GetPage(name: '/faceVerification', page: () => FaceverificationScreen()),
+        GetPage(name: '/faceVerification', page: () => FaceVerificationScreen()),
       ],
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
